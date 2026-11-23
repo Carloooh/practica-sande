@@ -1,6 +1,7 @@
 # Contexto para IA y Guía de Setup en Nuevo Equipo
 
 Este archivo está pensado para que mañana, cuando abras otro computador, tengas a mano:
+
 1. **El prompt exacto para copiar y pegar en la IA** para que sepa exactamente en qué punto quedamos y cómo ayudarte.
 2. **La guía rápida de instalación y preparación de entorno** (sin instalar SQL Server ni SSMS).
 3. **Cómo conectar la API a una base de datos remota por URL/IP**.
@@ -29,6 +30,8 @@ Estructura:
 - Documentos de estudio incluidos en el repo: ARQUITECTURA.md, FRONTEND.md y GUIA_PRACTICA.md.
 
 Por favor, ayúdame a continuar practicando hoy. Respóndeme con explicaciones directas, código conciso y enfoque pragmático para una prueba de 1 hora.
+
+Revisa lo que tengo y por dónde debería empezar a practicar ahora, no quiero que me cambies los archivos, sólo que actues como guía y me vayas dando c´ódigo pero por la interfaz, no en los archivos directo, YO TENGO Y QUIERO HACER LOS CAMBIOS PARA APRENDER
 ```
 
 ---
@@ -43,12 +46,14 @@ No necesitas instalar programas pesados. Solo instala estas 4 herramientas esenc
 4. **Visual Studio Code:** [https://code.visualstudio.com/](https://code.visualstudio.com/)
 
 ### Extensiones de VS Code Recomendadas:
+
 - **C# Dev Kit** (de Microsoft)
 - **Angular Language Service**
 - **Tailwind CSS IntelliSense**
-- **SQL Server (mssql)** (de Microsoft) 👉 *¡Te permite conectarte y ejecutar queries SQL directamente dentro de VS Code sin instalar SSMS!*
+- **SQL Server (mssql)** (de Microsoft) 👉 _¡Te permite conectarte y ejecutar queries SQL directamente dentro de VS Code sin instalar SSMS!_
 
 ### Comandos de Terminal tras instalar lo anterior:
+
 ```bash
 # 1. Instalar Angular CLI de forma global
 npm install -g @angular/cli
@@ -70,16 +75,19 @@ Si tienes un servidor remoto de SQL Server (en la nube, VPS o servidor propio), 
 ### A. Estructura de la Cadena de Conexión Remota
 
 #### Opción 1: Servidor por Dominio / URL
+
 ```text
 Server=tcp:tu-servidor.com,1433;Database=SandeDB;User Id=tu_usuario;Password=tu_password;Encrypt=True;TrustServerCertificate=True;
 ```
 
 #### Opción 2: Servidor por Dirección IP
+
 ```text
 Server=192.168.1.50,1433;Database=SandeDB;User Id=tu_usuario;Password=tu_password;Encrypt=False;TrustServerCertificate=True;
 ```
 
 > 💡 **Parámetros clave explicados:**
+>
 > - `,1433`: Es el puerto estándar de SQL Server.
 > - `TrustServerCertificate=True;`: Evita errores si el servidor no tiene un certificado SSL firmado por una entidad pública.
 > - `Encrypt=True;` o `False;`: Si el servidor remoto exige conexión cifrada, déjalo en `True`.
@@ -91,6 +99,7 @@ Server=192.168.1.50,1433;Database=SandeDB;User Id=tu_usuario;Password=tu_passwor
 Dentro de `backend/Sande.Api`, puedes configurarla de dos formas:
 
 #### Forma 1: Con User Secrets (Recomendada para no subir contraseñas a Git)
+
 ```bash
 cd backend/Sande.Api
 dotnet user-secrets init
@@ -98,7 +107,9 @@ dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=tcp:tu-ser
 ```
 
 #### Forma 2: Directamente en `appsettings.json`
+
 Edita `backend/Sande.Api/appsettings.json`:
+
 ```json
 {
   "ConnectionStrings": {
@@ -129,16 +140,20 @@ Para ver o crear tablas sin instalar SSMS:
 Una vez clonado el repositorio:
 
 ### Terminal 1 (Backend):
+
 ```bash
 cd practica-sande/backend/Sande.Api
 dotnet run
 ```
+
 > Swagger queda disponible en: `http://localhost:5000/swagger`
 
 ### Terminal 2 (Frontend):
+
 ```bash
 cd practica-sande/frontend/sande-ui
 npm install
 ng serve
 ```
+
 > Angular queda disponible en: `http://localhost:4200`
