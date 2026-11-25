@@ -23,7 +23,7 @@ export class ProductListComponent implements OnInit {
     this.loadProducts();
   }
 
-  loadProducts() {
+  loadProducts(){
     this.isLoading = true;
     this.errorMessage = '';
 
@@ -34,7 +34,7 @@ export class ProductListComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al conectar con la API:', err);
-        this.errorMessage = 'No se pudo conectar con el servidor. Verifica que la API esté encendida.';
+        this.errorMessage = 'No se pudo obtener el listado de producto';
         this.isLoading = false;
       }
     });
