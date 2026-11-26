@@ -1,0 +1,206 @@
+<div style="max-width: 900px; margin: 20px auto; font-family: sans-serif; padding: 0 15px;">
+  <h2>📦 Registro y Gestión de Devoluciones</h2>
+  <p style="color: #666;">Módulo para procesar devoluciones de clientes con detalle de productos e importes.</p>
+
+  <!-- MENSAJES DE ESTADO -->
+  @if (mensajeExito) {
+    <div style="background-color: #d4edda; color: #155724; padding: 10px; margin-bottom: 15px; border: 1px solid #c3e6cb; border-radius: 4px;">
+      {{ mensajeExito }}
+    </div>
+  }
+  @if (mensajeError) {
+    <div style="background-color: #f8d7da; color: #721c24; padding: 10px; margin-bottom: 15px; border: 1px solid #f5c6cb; border-radius: 4px;">
+      {{ mensajeError }}
+    </div>
+  }
+
+  <!-- 1. FORMULARIO PARA REGISTRAR NUEVA DEVOLUCIÓN -->
+  <fieldset style="border: 1px solid #ccc; padding: 15px; margin-bottom: 30px; border-radius: 6px;">
+    <legend style="font-weight: bold; padding: 0 5px;">Nueva Solicitud de Devolución</legend>
+
+    <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 200px;">
+        <label for="cliente" style="display: block; font-weight: bold; margin-bottom: 5px;">Nombre del Cliente:</label>
+        <input 
+          id="cliente"
+          type="text" 
+          [(ngModel)]="nuevoCliente" 
+          placeholder="Ej: Juan Pérez" 
+          style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;"
+        />
+      </div>
+
+      <div style="flex: 2; min-width: 250px;">
+        <label for="motivo" style="display: block; font-weight: bold; margin-bottom: 5px;">Motivo de la Devolución:</label>
+        <input 
+          id="motivo"
+          type="text" 
+          [(ngModel)]="nuevoMotivo" 
+          placeholder="Ej: Producto con falla de fábrica / Compra equivocada" 
+          style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;"
+        />
+      </div>
+    </div>
+
+    <!-- AGREGAR PRODUCTOS AL DETALLE -->
+    <div style="background: #f9f9f9; padding: 12px; border: 1px dashed #bbb; margin-bottom: 15px; border-radius: 4px;">
+      <h4 style="margin: 0 0 10px 0;">Seleccionar Productos a Devolver:</h4>
+      
+      <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+        <div style="flex: 2; min-width: 200px;">
+          <label style="display: block; font-size: 13px; margin-bottom: 3px;">Producto:</label>
+          <select 
+            [(ngModel)]="productoSeleccionadoId" 
+            style="width: 100%; padding: 7px; border: 1px solid #ccc; border-radius: 4px;"
+          >
+            @for (p of productosDisponibles; track p.id) {
+              <option [value]="p.id">{{ p.name }} - ${{ p.price }} (Stock: {{ p.stock }})</option>
+            }
+          </select>
+        </div>
+
+        <div style="width: 100px;">
+          <label style="display: block; font-size: 13px; margin-bottom: 3px;">Cantidad:</label>
+          <input 
+            type="number" 
+            min="1" 
+            [(ngModel)]="cantidadSeleccionada" 
+            style="width: 100%; padding: 7px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;"
+          />
+        </div>
+
+        <button 
+          type="button" 
+          (click)="agregarItem()" 
+          style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;"
+        >
+          + Agregar Ítem
+        </button>
+      </div>
+    </div>
+
+    <!-- TABLA TEMPORAL DE ÍTEMS A DEVOLVER -->
+    @if (itemsADevolver.length > 0) {
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+        <thead>
+          <tr style="background-color: #e9ecef; text-align: left;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Producto</th>
+            <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Cantidad</th>
+            <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Subtotal Reembolso</th>
+            <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of itemsADevolver; track item.idProducto; let i = $index) {
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;">{{ item.nombreProducto }}</td>
+              <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">{{ item.cantidad }}</td>
+              <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">\${{ item.montoReembolso }}</td>
+              <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+                <button 
+                  type="button" 
+                  (click)="quitarItem(i)" 
+                  style="background-color: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer;"
+                >
+                  Quitar
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="2" style="padding: 8px; text-align: right; border: 1px solid #ddd;">Total a Devolver:</th>
+            <th style="padding: 8px; text-align: right; border: 1px solid #ddd; color: #d9534f; font-size: 16px;">
+              \${{ calcularTotalTemporal() }}
+            </th>
+            <th style="border: 1px solid #ddd;"></th>
+          </tr>
+        </tfoot>
+      </table>
+
+      <button 
+        type="button" 
+        (click)="guardarDevolucion()" 
+        style="width: 100%; padding: 12px; background-color: #28a745; color: white; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; font-size: 15px;"
+      >
+        ✔ Confirmar y Registrar Devolución
+      </button>
+    } @else {
+      <p style="color: #888; font-style: italic; margin: 10px 0;">No has añadido productos a la lista de devolución aún.</p>
+    }
+  </fieldset>
+
+  <!-- 2. HISTORIAL DE DEVOLUCIONES -->
+  <fieldset style="border: 1px solid #ccc; padding: 15px; border-radius: 6px;">
+    <legend style="font-weight: bold; padding: 0 5px;">Historial de Devoluciones Registradas</legend>
+
+    @if (cargando) {
+      <p>Cargando devoluciones...</p>
+    } @else if (devoluciones.length === 0) {
+      <p style="color: #666;">No hay devoluciones registradas en el sistema.</p>
+    } @else {
+      <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+        <thead>
+          <tr style="background-color: #f1f1f1; text-align: left;">
+            <th style="padding: 8px; border: 1px solid #ccc;">#ID</th>
+            <th style="padding: 8px; border: 1px solid #ccc;">Fecha</th>
+            <th style="padding: 8px; border: 1px solid #ccc;">Cliente</th>
+            <th style="padding: 8px; border: 1px solid #ccc;">Motivo</th>
+            <th style="padding: 8px; border: 1px solid #ccc; text-align: right;">Total Devuelto</th>
+            <th style="padding: 8px; border: 1px solid #ccc; text-align: center;">Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (d of devoluciones; track d.id) {
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ccc; font-weight: bold;">#{{ d.id }}</td>
+              <td style="padding: 8px; border: 1px solid #ccc;">{{ d.fecha | date:'short' }}</td>
+              <td style="padding: 8px; border: 1px solid #ccc;">{{ d.cliente }}</td>
+              <td style="padding: 8px; border: 1px solid #ccc;">{{ d.motivo }}</td>
+              <td style="padding: 8px; border: 1px solid #ccc; text-align: right; font-weight: bold;">\${{ d.totalDevuelto }}</td>
+              <td style="padding: 8px; border: 1px solid #ccc; text-align: center;">
+                <button 
+                  (click)="verDetalle(d)" 
+                  style="background-color: #17a2b8; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer;"
+                >
+                  Ver ítems ({{ d.items.length }})
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </fieldset>
+
+  <!-- MODAL / TARJETA SIMPLE DE DETALLE -->
+  @if (devolucionSeleccionada) {
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+      <div style="background: white; padding: 20px; border-radius: 8px; max-width: 500px; width: 90%; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+        <h3 style="margin-top: 0;">Detalle Devolución #{{ devolucionSeleccionada.id }}</h3>
+        <p><strong>Cliente:</strong> {{ devolucionSeleccionada.cliente }}</p>
+        <p><strong>Motivo:</strong> {{ devolucionSeleccionada.motivo }}</p>
+        <p><strong>Fecha:</strong> {{ devolucionSeleccionada.fecha | date:'medium' }}</p>
+
+        <h4>Productos Reembolsados:</h4>
+        <ul style="padding-left: 20px;">
+          @for (item of devolucionSeleccionada.items; track item.id) {
+            <li style="margin-bottom: 5px;">
+              <strong>{{ item.nombreProducto }}</strong>: {{ item.cantidad }} unidad(es) - Reembolso: \${{ item.montoReembolso }}
+            </li>
+          }
+        </ul>
+
+        <div style="text-align: right; margin-top: 20px;">
+          <button 
+            (click)="cerrarDetalle()" 
+            style="padding: 8px 16px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
