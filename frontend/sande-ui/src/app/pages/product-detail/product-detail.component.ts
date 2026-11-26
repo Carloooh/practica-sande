@@ -12,7 +12,11 @@ import { Product } from '../../models/product.model';
     <div class="max-w-2xl mx-auto p-6 mt-8 bg-white border border-slate-200 rounded-xl shadow-sm">
       <a routerLink="/" class="text-blue-600 hover:underline text-sm mb-4 inline-block">← Volver al catálogo</a>
       
-      @if (product) {
+      @if (isLoading) {
+        <p class="text-slate-400">Cargando producto {{ productId }}...</p>
+      }
+    
+      @else if (product) {
         <h2 class="text-3xl font-bold text-slate-800">{{ product.name }}</h2>
         <p class="text-slate-600 mt-3 text-base leading-relaxed">{{ product.description }}</p>
         
@@ -27,7 +31,7 @@ import { Product } from '../../models/product.model';
           </div>
         </div>
       } @else {
-        <p class="text-slate-400">Cargando producto ID {{ productId }}...</p>
+        <p class="text-slate-400">Producto no encontrado</p>
       }
     </div>
   `
@@ -38,16 +42,24 @@ export class ProductDetailComponent implements OnInit {
 
   productId = '';
   product: Product | null = null;
+  isLoading = true;
 
   ngOnInit() {
     // Similar a params.id de Next.js:
+    this.isLoading = true;
     this.productId = this.route.snapshot.paramMap.get('id') ?? '';
     
     if (this.productId) {
       this.http.get<Product>(`http://localhost:5000/api/products/${this.productId}`)
         .subscribe({
-          next: (data) => this.product = data,
-          error: (err) => console.error('Error al cargar detalle:', err)
+          next: (data) => {
+            this.product = data;
+            this.isLoading = false;
+          },
+          error: (err) => {
+            this.isLoading = false;
+            console.error('Error al cargar detalle:', err);
+          }
         });
     }
   }
