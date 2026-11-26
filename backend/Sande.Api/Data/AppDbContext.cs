@@ -1,4 +1,3 @@
-
 using Microsoft.EntityFrameworkCore;
 using Sande.Api.Models;
 
@@ -12,8 +11,9 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<User> Users => Set<User>();
-
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<Cotizacion> Cotizaciones => Set<Cotizacion>();
+    public DbSet<CotizacionProductos> CotizacionProductos => Set<CotizacionProductos>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

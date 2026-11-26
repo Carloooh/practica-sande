@@ -25,6 +25,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 builder.Services.AddScoped<ProductRepository>();
+builder.Services.AddScoped<CotizacionRepository>();
 
 // 4. Autenticación con Token JWT
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "SandeSuperSecretKeyForJwtAuthentication2026!";

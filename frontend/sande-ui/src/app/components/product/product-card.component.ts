@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Product } from '../../models/product.model';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-product-card',
@@ -22,14 +23,15 @@ import { Product } from '../../models/product.model';
         <span class="text-xl font-bold text-slate-900">\${{ product.price }}</span>
         
         <div class="flex gap-2">
-          <!-- Comunicación Hijo ➔ Padre via Evento -->
+          <!-- Botón Agregar al Carrito -->
           <button 
-            (click)="onSelectProduct()" 
-            class="px-3 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded text-sm transition">
-            Notificar Padre
+            type="button"
+            (click)="addToCart()" 
+            class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-sm font-medium transition flex items-center gap-1 shadow-sm">
+            🛒 + Carrito
           </button>
 
-          <!-- Navegación a la página de detalle tipo Next.js -->
+          <!-- Navegación a la página de detalle -->
           <a 
             [routerLink]="['/producto', product.id]" 
             class="px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 rounded text-sm font-medium transition">
@@ -41,13 +43,13 @@ import { Product } from '../../models/product.model';
   `
 })
 export class ProductCardComponent {
-  // 1. Recibir datos del Padre (Props)
   @Input({ required: true }) product!: Product;
-
-  // 2. Enviar evento al Padre (Callbacks)
   @Output() select = new EventEmitter<Product>();
 
-  onSelectProduct() {
+  private cartService = inject(CartService);
+
+  addToCart() {
+    this.cartService.addToCart(this.product);
     this.select.emit(this.product);
   }
 }
